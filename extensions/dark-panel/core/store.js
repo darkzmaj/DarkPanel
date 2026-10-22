@@ -1,4 +1,4 @@
-// Popup Guard — persistence on top of a chrome.storage.local-like area.
+// DarkPanel / Popup Guard: persistence on top of a chrome.storage.local-like area.
 // All writes go through one promise queue so concurrent add/remove/toggle
 // requests can never overwrite each other (a lost-update bug class that a
 // read-modify-write per message would otherwise have).

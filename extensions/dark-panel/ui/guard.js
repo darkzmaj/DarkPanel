@@ -1,4 +1,4 @@
-// Popup Guard — settings UI. Works as the toolbar/menu popup and as a
+// DarkPanel / Popup Guard: settings UI. Works as the toolbar/menu popup and as a
 // full page. The page never writes storage itself: every change is a message
 // to the service worker, which validates, persists and applies it.
 import { hostOf } from '../core/domain.js';

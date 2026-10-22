@@ -1,4 +1,4 @@
-// Dark Panel — tabs, per-site controls and the extensions list.
+// DarkPanel: tabs, per-site controls and the extensions list.
 // Popup Guard itself lives in guard.js.
 import { hostOf } from '../core/domain.js';
 
@@ -60,7 +60,7 @@ async function renderSite() {
     $('perms-hint').textContent = 'Open a website to see its settings.';
     return;
   }
-  $('security').textContent = url.startsWith('https:') ? '🔒 Secure connection (HTTPS)' : '⚠ Not secure (HTTP)';
+  $('security').textContent = url.startsWith('https:') ? 'Secure connection (HTTPS)' : 'Not secure (HTTP)';
   $('security').classList.toggle('warn', !url.startsWith('https:'));
 
   const pattern = `${new URL(url).protocol}//${host}/*`;
@@ -112,7 +112,7 @@ $('open-site-settings').addEventListener('click', () => {
   open(`chrome://settings/content/siteDetails?site=${encodeURIComponent(u.origin)}`);
 });
 $('open-shields').addEventListener('click', () => open('chrome://settings/shields'));
-$('discord').addEventListener('click', (e) => { e.preventDefault(); open('https://darkdragon.dev/discord'); });
+$('contact').addEventListener('click', (e) => { e.preventDefault(); open('https://darkzmaj.eu/#contact'); });
 
 // --- Extensions -----------------------------------------------------------
 async function renderExtensions() {

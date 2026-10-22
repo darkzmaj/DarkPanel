@@ -1,4 +1,4 @@
-// Popup Guard — configuration model and pure decision logic.
+// DarkPanel / Popup Guard: configuration model and pure decision logic.
 // Every mutation returns a NEW config object; persistence lives in store.js.
 import { normalizeDomain, matchesDomain, hostOf } from './domain.js';
 
@@ -117,20 +117,17 @@ export function inScope(rule, url) {
 
 /**
  * Decides whether a new tab/window opened BY a protected page may stay open.
+ * Only tabs the user explicitly asked for survive: Ctrl/Shift/middle click,
+ * "Open link in new tab", or a same-site link marked target=_blank. Tabs a
+ * page opens by itself, including from a button click, are closed.
  *   rule      the active rule of the opener tab
  *   targetUrl the URL the new tab was created for (may be about:blank)
- *   approval  {any:boolean} when the user explicitly asked for a new tab
- *             (modifier/middle click, context menu) moments before.
+ *   approval  true when the user asked for a new tab moments before
  */
 export function decideNewTab(rule, targetUrl, approval) {
-  if (!rule) return 'allow';
-  if (approval) {
-    if (rule.mode === 'balanced') return 'allow';
-    // Strict: even user-requested new tabs must stay on the protected site.
-    return inScope(rule, targetUrl) ? 'allow' : 'block';
-  }
-  if (rule.mode === 'balanced' && inScope(rule, targetUrl)) return 'allow';
-  return 'block';
+  if (!rule || !approval) return rule ? 'block' : 'allow';
+  // Strict: even user-requested new tabs must stay on the protected site.
+  return rule.mode === 'balanced' || inScope(rule, targetUrl) ? 'allow' : 'block';
 }
 
 const USER_TRANSITIONS = new Set(['typed', 'auto_bookmark', 'generated', 'keyword', 'keyword_generated', 'reload', 'start_page', 'form_submit']);

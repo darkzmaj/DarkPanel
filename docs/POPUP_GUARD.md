@@ -1,42 +1,43 @@
-# Popup Guard (in Dark Panel)
-
-## Why the old extension's "add website" failed
-In `brave-myflixer-popup-guard-v2`, `popup.js` called `chrome.permissions.request()` (an optional host permission) and only **after** it resolved sent the `add` message to the service worker. Opening the permission prompt closes the action popup, which destroys its JS context, so the `add` message was never sent and nothing was saved. Even when the message was sent, `modify()` refused any domain without granted host access.
-
-The fix: host access is declared in the manifest (granted when you load the extension), so there is no runtime permission prompt. The service worker validates, persists and applies every change, and the UI only sends messages. Settings changes are accepted only from the extension's own pages, checked by sender URL origin.
+# How Popup Guard works
 
 ## Rules
-- Input is normalized (`https://www.Example.com/x` → `example.com`; IDNs → punycode; `javascript:`, `file:`, IPv6 and credentials are rejected).
-- A rule `example.com` covers `example.com` and **all subdomains**, matched on label boundaries only. `notexample.com` and `example.com.evil.net` never match. The most specific rule wins.
-- The config persists in `chrome.storage.local` (profile-local, never uploaded). All writes go through one queue, so there are no lost updates. Defaults: `myflixerfree.io` in **Strict** mode. A list you emptied yourself stays empty.
-- Incognito: the same rules apply, and no statistics are recorded for private windows.
 
-## Modes
-| | Balanced (default) | Strict |
+- Input is normalized before saving: `https://www.Example.com/watch?v=1` becomes `example.com`. Internationalized names are stored in their ASCII (punycode) form. `javascript:`, `file:`, `data:`, IPv6 addresses and URLs with a username or password are rejected.
+- A rule for `example.com` applies to `example.com` and every subdomain. Matching is on whole labels, so `notexample.com` and `example.com.evil.net` are never matched. When several rules match, the longest one wins.
+- Settings are stored in `chrome.storage.local` in your browser profile. All changes go through a single queue in the background worker, so two quick changes can't overwrite each other.
+- On first install the list contains `myflixerfree.io` in Strict mode. If you empty the list, it stays empty.
+- Private windows use the same rules. Nothing is counted there.
+
+## What each mode does
+
+| Action on a protected site | Balanced | Strict |
 |---|---|---|
-| `window.open` without a click | blocked | blocked |
-| `window.open` from a click | allowed if it stays on the site, otherwise the tab is closed | blocked |
-| `target=_blank` link | to the same site: allowed; external: blocked | to the same site: allowed; external: blocked |
-| Ctrl/middle-click, "Open link in new tab" | allowed | same site only |
-| Normal external link click | allowed | blocked |
-| Script / meta redirect off-site | blocked | blocked |
-| Off-site form submission | from script: blocked | blocked |
-
-Strict can break sign-in pages, payment providers, and links you deliberately follow to other sites. Use it only on sites such as streaming mirrors.
+| Site opens a tab or window by itself | blocked | blocked |
+| Button or overlay click opens a tab or window | blocked | blocked |
+| `target="_blank"` link to another site | blocked | blocked |
+| `target="_blank"` link to the same site | opens | opens |
+| Ctrl+click, middle-click, "Open link in new tab" | opens | opens only for the same site |
+| Normal link to another site | opens | blocked |
+| Script or meta-refresh redirect to another site | blocked | blocked |
+| Server redirect to another site | allowed | blocked |
+| Form that submits to another site | blocked if sent by a script | blocked |
+| Ctrl+T, address bar, bookmarks | not affected | not affected |
 
 ## Enforcement layers
-1. **MAIN-world guard** (`content/page-guard.js`, document_start, all frames of protected sites): replaces `window.open`, cancels script navigations through the Navigation API's `navigate` event (pre-emptive, verified by test), and guards `form.submit()`.
-2. **ISOLATED-world guard** (`content/link-guard.js`): handles clicks/submits with the exact rule scope, treats synthetic `a.click()` as untrusted, and sends "user approved" signals for Ctrl/middle/context-menu opens.
-3. **Strict:** a `declarativeNetRequest` rule blocks main-frame requests that the protected site initiates to other sites.
-4. **Service-worker backstop:** closes unsolicited tabs whose opener tab is protected, which covers popups from third-party ad iframes, and reverts client redirects that left the site.
+
+1. **Page guard** (`content/page-guard.js`). Runs in the page's own JavaScript context before any of the page's scripts, in every frame of a protected site. It replaces `window.open`, cancels script-initiated navigations to other sites using the Navigation API, and stops `form.submit()` to other sites. These are blocked before anything opens.
+2. **Link guard** (`content/link-guard.js`). Runs in the extension's isolated context. It handles clicks and form submissions, ignores clicks generated by scripts, and tells the background worker when you deliberately opened a new tab (Ctrl+click, middle-click, context menu).
+3. **Network rule (Strict only).** A `declarativeNetRequest` rule blocks top-level page loads that the protected site starts toward other sites.
+4. **Background worker** (`background.js`). Closes any new tab whose opener is a protected tab, unless you asked for it. This catches popups from ad frames that live on other domains, which the page guard can't reach. It also returns the tab to the protected site after a script redirect that got past the page guard.
 
 ## Known limitations
-- Popups from **cross-site iframes** are closed right after creation, not prevented, so a tab can flash briefly.
-- An ad script that grabs `window.open` from a freshly created `about:blank` iframe before injection can bypass layer 1; layer 4 still closes the tab.
-- The MAIN-world guard approximates "same site" (current host, its parents and its children). Sibling subdomains count as external for **script** navigations only.
-- Redirects that a server performs off-site (HTTP 3xx) are allowed in Balanced mode.
-- The rules apply to new page loads. Reload already-open tabs after you change settings.
+
+- Popups from ad frames on other domains are closed right after they open, so a tab can appear for a moment.
+- A script can take an untouched `window.open` from a newly created blank frame before the page guard runs inside it. Layer 4 still closes the resulting tab.
+- The page guard can't read the saved rule synchronously, so it treats the current host, its parent domains and its subdomains as "the same site". Sibling subdomains (`a.site.com` → `b.site.com`) count as other sites for script redirects only.
+- New settings apply to pages loaded afterwards.
 
 ## Tests
-- `npm test`: normalization, IDN, matching, add/remove/toggle/mode, persistence across restart, concurrent writes, reset isolation, decision tables.
-- `npm run test:e2e`: real headless Chromium, local `*.test` sites, and Chromium's own popup blocker **disabled**, so every block observed comes from Popup Guard. Covers add/reject in the UI, unsolicited popup, click popup to an ad, same-site window, Ctrl+click approval, `_blank` overlay, script redirect (verified pre-emptive), third-party iframe popup, unprotected site unaffected, strict mode, restart persistence, per-site toggle, and removal.
+
+- `tests/unit/popup_guard.test.js`: normalization (including IDN and invalid input), matching, add/remove/toggle/mode, saving across a restart, concurrent changes, reset isolation, and the decision tables above.
+- `tests/e2e/popup_guard.test.js`: real headless Chromium with the extension loaded, local test sites, and Chromium's own popup blocker turned off. Covers every row of the table plus restart persistence, the per-site switch, removal, site permissions, the extensions list and the theme.

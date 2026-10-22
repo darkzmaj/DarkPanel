@@ -1,4 +1,4 @@
-// Popup Guard — domain normalization and matching.
+// DarkPanel / Popup Guard: domain normalization and matching.
 // Pure ES module: shared by the service worker, the settings UI and the Node
 // unit tests. No browser APIs.
 //

@@ -1,4 +1,4 @@
-// Popup Guard — MAIN-world guard. Injected at document_start, before any
+// DarkPanel / Popup Guard: MAIN-world guard. Injected at document_start, before any
 // page script, only into frames of protected sites (registration decides).
 (() => {
   'use strict';
@@ -32,9 +32,6 @@
     if (sameFrame && (internal(url ?? '') || (mode === 'balanced' && gesture))) {
       return nativeOpen.apply(this, arguments);
     }
-    // Balanced: a real user gesture may open a window; the service worker
-    // still closes it if it leaves the protected site.
-    if (!sameFrame && mode === 'balanced' && gesture) return nativeOpen.apply(this, arguments);
     report('window.open');
     return null;
   }

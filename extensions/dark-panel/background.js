@@ -1,4 +1,4 @@
-// Popup Guard — service worker.
+// DarkPanel / Popup Guard: service worker.
 // Layers (see docs/POPUP_GUARD.md):
 //  1. MAIN-world page guard on protected hosts (pre-emptive window.open /
 //     script-redirect blocking), registered dynamically per mode.

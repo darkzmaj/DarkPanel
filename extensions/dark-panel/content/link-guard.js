@@ -1,4 +1,4 @@
-// Popup Guard — ISOLATED-world guard for clicks and form submissions on
+// DarkPanel / Popup Guard: ISOLATED-world guard for clicks and form submissions on
 // protected sites. Knows the exact rule scope (reads extension storage).
 (() => {
   'use strict';

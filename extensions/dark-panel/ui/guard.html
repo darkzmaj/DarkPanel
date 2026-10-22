@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dark Panel</title>
+  <title>DarkPanel</title>
   <link rel="stylesheet" href="guard.css">
 </head>
 <body>
   <main>
     <header>
       <img src="../icons/icon48.png" alt="" width="24" height="24">
-      <h1>Dark Panel</h1>
+      <h1>DarkPanel</h1>
       <label class="switch" title="Turn Popup Guard on or off everywhere">
         <input id="global" type="checkbox" role="switch" aria-label="Popup Guard enabled">
         <span></span>
@@ -55,7 +55,7 @@
     <section data-panel="guard" class="panel" hidden>
       <form id="add-form" class="card row" autocomplete="off">
         <label for="domain" class="sr-only">Website or URL</label>
-        <input id="domain" name="domain" placeholder="example.com or https://example.com/" spellcheck="false" required>
+        <input id="domain" name="domain" placeholder="example.com" spellcheck="false" required>
         <select id="new-mode" aria-label="Protection mode for new website">
           <option value="balanced">Balanced</option>
           <option value="strict">Strict</option>
@@ -66,9 +66,9 @@
       <div class="card">
         <h2>Protected websites <span id="count" class="pill">0</span></h2>
         <ul id="sites"></ul>
-        <p class="hint"><b>Balanced</b> blocks unsolicited popups, new tabs and script redirects but keeps what you click.
-          <b>Strict</b> also blocks links, new tabs and form submissions that leave the site even when you click them —
-          sign-in pages, payment providers or “open in new tab” to other sites can break.</p>
+        <p class="hint"><b>Balanced:</b> blocks tabs and redirects the site opens on its own. Links you click still work.<br>
+          <b>Strict:</b> also blocks links and forms that lead to other sites. Use it on sites that are mostly ads.
+          Sign-in and payment pages on other domains will not open.</p>
       </div>
 
       <div class="card stats">
@@ -89,8 +89,8 @@
     <p id="notice" role="status" hidden></p>
 
     <footer>
-      <span>Stored locally. Nothing is uploaded.</span>
-      <a id="discord" href="https://darkdragon.dev/discord" target="_blank" rel="noopener">Darky community — Discord</a>
+      <span>Settings stay on this device.</span>
+      <a id="contact" href="https://darkzmaj.eu/#contact" target="_blank" rel="noopener">Contact</a>
     </footer>
   </main>
   <script type="module" src="guard.js"></script>

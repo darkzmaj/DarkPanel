@@ -4,7 +4,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +15,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const EXT = join(root, 'extensions/dark-panel');
 const EXT_ID = 'ggifibhodlacedemomakcpddllllcofa';
 const FIXTURE = join(root, 'tests/e2e/fixture-ext');
-const THEME = join(root, 'themes/graphite-dark');
+// Chromium writes a cache file into a loaded theme folder, so load a copy.
+const THEME = join(mkdtempSync(join(tmpdir(), 'darkpanel-theme-')), 'graphite-dark');
 const settle = (ms = 700) => new Promise((r) => setTimeout(r, ms));
 
 let server, port, profile, ctx;
@@ -25,6 +26,7 @@ const PAGES = {
   '/popup.html': () => `<button id="ext" onclick="window.open('${url('ads.test', '/ad.html')}')">ext</button>
     <button id="same" onclick="window.open('${url('www.protected.test', '/ok.html')}')">same</button>
     <a id="extlink" href="${url('ads.test', '/ad.html')}">link</a>
+    <a id="samelink" target="_blank" href="${url('protected.test', '/ok.html')}">same-site new tab link</a>
     <script>if (location.search === '?auto') window.open('${url('ads.test', '/ad.html')}');</script>`,
   '/redirect.html': () => `<p>redirecting</p><script>setTimeout(() => { location.href = '${url('ads.test', '/ad.html')}'; }, 150);</script>`,
   '/blank.html': () => `<a id="overlay" target="_blank" href="${url('ads.test', '/ad.html')}" style="position:fixed;inset:0">x</a>`,
@@ -75,7 +77,8 @@ before(async () => {
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   port = server.address().port;
-  profile = mkdtempSync(join(tmpdir(), 'bravedark-pg-'));
+  cpSync(join(root, 'themes/graphite-dark'), THEME, { recursive: true });
+  profile = mkdtempSync(join(tmpdir(), 'darkpanel-e2e-'));
   await launch();
 });
 
@@ -108,13 +111,11 @@ test('blocks unsolicited window.open on a protected site and counts it', async (
   await s.close();
 });
 
-test('balanced: user click opening an external ad window is closed, same-site window allowed', async () => {
+test('balanced: windows a button opens are blocked, external or same-site', async () => {
   const p = await closeAllButOne();
   await p.goto(url('protected.test', '/popup.html'));
   assert.equal((await pagesAfter(() => p.click('#ext'))).length, 0);
-  const same = await pagesAfter(() => p.click('#same'));
-  assert.equal(same.length, 1);
-  assert.match(same[0].url(), /protected\.test/);
+  assert.equal((await pagesAfter(() => p.click('#same'))).length, 0);
 });
 
 test('balanced: user-approved new tab (Ctrl+click) stays open', async () => {
@@ -122,6 +123,14 @@ test('balanced: user-approved new tab (Ctrl+click) stays open', async () => {
   await p.goto(url('protected.test', '/popup.html'));
   const opened = await pagesAfter(() => p.click('#extlink', { modifiers: ['Control'] }));
   assert.equal(opened.length, 1);
+});
+
+test('balanced: a same-site link that opens in a new tab still works', async () => {
+  const p = await closeAllButOne();
+  await p.goto(url('protected.test', '/popup.html'));
+  const opened = await pagesAfter(() => p.click('#samelink'));
+  assert.equal(opened.length, 1);
+  assert.match(opened[0].url(), /protected\.test:\d+\/ok\.html/);
 });
 
 test('blocks target=_blank ad overlays', async () => {
@@ -168,6 +177,22 @@ test('strict mode blocks same-site windows and external link clicks', async () =
   await p.click('#extlink');
   await settle();
   assert.match(p.url(), /protected\.test/);
+});
+
+test('strict site: Ctrl+T tabs, tabs opened from the browser and typed URLs still work', async () => {
+  const p = await closeAllButOne();
+  await p.goto(url('protected.test', '/popup.html'));
+  const sw = ctx.serviceWorkers()[0];
+  const sourceId = await sw.evaluate(async () => (await chrome.tabs.query({ url: '*://protected.test/*' }))[0].id);
+  // Ctrl+T: the browser creates a tab with no opener. (Headless Chromium has
+  // no tab strip to press the shortcut on, so create it the same way.)
+  assert.equal((await pagesAfter(() => sw.evaluate(() => chrome.tabs.create({ url: 'about:blank' })))).length, 1);
+  // A tab the browser opens next to the protected one (e.g. from a bookmark).
+  assert.equal((await pagesAfter(() => sw.evaluate((id) => chrome.tabs.create({ url: 'about:blank', openerTabId: id }), sourceId))).length, 1);
+  // Typing another site in the address bar of the protected tab.
+  await p.goto(url('other.test', '/ok.html'));
+  await settle();
+  assert.match(p.url(), /other\.test/);
 });
 
 test('protection persists after a browser restart', async () => {

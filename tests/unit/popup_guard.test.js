@@ -100,7 +100,8 @@ test('new-tab decisions per mode', () => {
   const strict = { ...bal, mode: 'strict' };
   assert.equal(decideNewTab(bal, 'https://ads.example/', false), 'block');
   assert.equal(decideNewTab(bal, 'about:blank', false), 'block', 'popunder shell');
-  assert.equal(decideNewTab(bal, 'https://player.site.io/', false), 'allow');
+  assert.equal(decideNewTab(bal, 'https://player.site.io/', false), 'block', 'site-opened tab, even same-site');
+  assert.equal(decideNewTab(bal, 'https://player.site.io/', true), 'allow');
   assert.equal(decideNewTab(bal, 'https://other.example/', true), 'allow', 'user-approved new tab');
   assert.equal(decideNewTab(strict, 'https://player.site.io/', false), 'block');
   assert.equal(decideNewTab(strict, 'https://player.site.io/', true), 'allow');
