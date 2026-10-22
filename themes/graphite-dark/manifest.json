@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Graphite Dark",
+  "version": "1.0.0",
+  "description": "Minimal black/graphite theme for Brave.",
+  "theme": {
+    "colors": {
+      "frame": [10, 11, 13],
+      "frame_inactive": [16, 17, 20],
+      "frame_incognito": [8, 8, 10],
+      "frame_incognito_inactive": [14, 14, 17],
+      "background_tab": [10, 11, 13],
+      "background_tab_inactive": [16, 17, 20],
+      "toolbar": [22, 24, 27],
+      "toolbar_text": [231, 233, 236],
+      "toolbar_button_icon": [200, 205, 212],
+      "tab_text": [231, 233, 236],
+      "tab_background_text": [140, 146, 155],
+      "tab_background_text_inactive": [110, 115, 123],
+      "bookmark_text": [200, 205, 212],
+      "omnibox_background": [13, 14, 16],
+      "omnibox_text": [231, 233, 236],
+      "ntp_background": [13, 14, 16],
+      "ntp_text": [231, 233, 236],
+      "ntp_link": [201, 206, 214],
+      "ntp_header": [22, 24, 27]
+    },
+    "tints": {
+      "buttons": [0, 0, 0.85]
+    },
+    "properties": {
+      "ntp_background_alignment": "center"
+    }
+  }
+}

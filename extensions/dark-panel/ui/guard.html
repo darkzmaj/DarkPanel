@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dark Panel</title>
+  <link rel="stylesheet" href="guard.css">
+</head>
+<body>
+  <main>
+    <header>
+      <img src="../icons/icon48.png" alt="" width="24" height="24">
+      <h1>Dark Panel</h1>
+      <label class="switch" title="Turn Popup Guard on or off everywhere">
+        <input id="global" type="checkbox" role="switch" aria-label="Popup Guard enabled">
+        <span></span>
+      </label>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="site" aria-selected="true">This site</button>
+      <button type="button" role="tab" data-tab="guard">Popup Guard</button>
+      <button type="button" role="tab" data-tab="extensions">Extensions</button>
+    </nav>
+
+    <!-- This site -->
+    <section data-panel="site" class="panel">
+      <div id="current" class="card" aria-live="polite">
+        <div>
+          <div id="current-host" class="host">—</div>
+          <div id="security" class="status"></div>
+          <div id="current-status" class="status"></div>
+        </div>
+        <button id="add-current" type="button" hidden>Protect this site</button>
+      </div>
+
+      <div class="card" id="site-perms">
+        <h2>Permissions</h2>
+        <div id="perms"></div>
+        <p class="hint" id="perms-hint">Changes apply on the next page load.</p>
+      </div>
+
+      <div class="card row wrap">
+        <span id="cookie-count" class="status grow">Cookies: —</span>
+        <button id="clear-site" type="button" class="ghost danger">Clear site data</button>
+      </div>
+
+      <div class="card row wrap">
+        <button id="open-site-settings" type="button" class="ghost">All site settings</button>
+        <button id="open-shields" type="button" class="ghost">Shields settings</button>
+      </div>
+    </section>
+
+    <!-- Popup Guard -->
+    <section data-panel="guard" class="panel" hidden>
+      <form id="add-form" class="card row" autocomplete="off">
+        <label for="domain" class="sr-only">Website or URL</label>
+        <input id="domain" name="domain" placeholder="example.com or https://example.com/" spellcheck="false" required>
+        <select id="new-mode" aria-label="Protection mode for new website">
+          <option value="balanced">Balanced</option>
+          <option value="strict">Strict</option>
+        </select>
+        <button type="submit">Add</button>
+      </form>
+
+      <div class="card">
+        <h2>Protected websites <span id="count" class="pill">0</span></h2>
+        <ul id="sites"></ul>
+        <p class="hint"><b>Balanced</b> blocks unsolicited popups, new tabs and script redirects but keeps what you click.
+          <b>Strict</b> also blocks links, new tabs and form submissions that leave the site even when you click them —
+          sign-in pages, payment providers or “open in new tab” to other sites can break.</p>
+      </div>
+
+      <div class="card stats">
+        <div><div class="label">Blocked</div><div id="blocked" class="big">0</div></div>
+        <button id="reset-stats" type="button" class="ghost">Reset statistics</button>
+        <button id="reset-all" type="button" class="ghost danger">Reset Popup Guard…</button>
+      </div>
+    </section>
+
+    <!-- Extensions -->
+    <section data-panel="extensions" class="panel" hidden>
+      <div class="card">
+        <ul id="extensions"></ul>
+      </div>
+      <button id="manage-extensions" type="button" class="ghost">Manage extensions</button>
+    </section>
+
+    <p id="notice" role="status" hidden></p>
+
+    <footer>
+      <span>Stored locally. Nothing is uploaded.</span>
+      <a id="discord" href="https://darkdragon.dev/discord" target="_blank" rel="noopener">Darky community — Discord</a>
+    </footer>
+  </main>
+  <script type="module" src="guard.js"></script>
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

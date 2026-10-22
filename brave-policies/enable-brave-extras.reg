@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+; Undoes disable-brave-extras.reg (removes only those values). Restart Brave after.
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\BraveSoftware\Brave]
+"BraveWalletDisabled"=-
+"BraveAIChatEnabled"=-
+"BraveNewsDisabled"=-
+"BraveVPNDisabled"=-
+"BraveRewardsDisabled"=-
+"BraveP3AEnabled"=-
+"BraveStatsPingEnabled"=-
