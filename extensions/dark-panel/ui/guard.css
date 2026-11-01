@@ -6,7 +6,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); min-width: 380px; font-size: 13px; } /* extension pages default to 75% */
-main { max-width: 640px; margin: 0 auto; padding: 16px; display: grid; gap: 18px; }
+main { max-width: 640px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 /* Related items sit tight: header+status, add form+its notice, stats+privacy note. */
 header { margin-bottom: -6px; }
 #notice { margin-top: -10px; }
@@ -34,7 +34,7 @@ button:hover { filter: brightness(1.1); }
 .list-head { margin-bottom: 8px; }
 .pill { background: var(--line); border-radius: 99px; padding: 0 7px; font-size: 11px; color: var(--muted); }
 ul { list-style: none; margin: 0; padding: 0; }
-li { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); }
+li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); }
 li:first-child { border-top: 0; }
 li.empty { display: block; color: var(--muted); }
 .domain { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -56,7 +56,7 @@ body.off #sites, body.off #current { opacity: .55; }
 .tabs { display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 3px; margin-top: -8px; }
 .tabs button { flex: 1; background: transparent; color: var(--muted); font-weight: 500; padding: 6px 8px; }
 .tabs button[aria-selected=true] { background: var(--line); color: var(--text); }
-.panel { display: grid; gap: 10px; }
+.panel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .panel[hidden] { display: none; }
 .row.wrap { flex-wrap: wrap; align-items: center; }
 .grow { flex: 1; }
@@ -64,9 +64,23 @@ body.off #sites, body.off #current { opacity: .55; }
 #perms { display: grid; gap: 2px; margin-top: 6px; }
 .perm { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; }
 .perm select { padding: 4px 6px; width: 8.5em; }
-li.ext { grid-template-columns: auto 1fr auto auto; }
+li.ext { grid-template-columns: auto minmax(0, 1fr) auto auto; }
 .ext-actions { display: flex; gap: 4px; }
 button.small { padding: 4px 8px; font-size: 12px; }
 button:disabled { opacity: .45; cursor: default; filter: none; }
 footer { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; color: var(--muted); font-size: 12px; }
 footer a { color: var(--accent); }
+
+/* Touch screens (phones, tablets): 44px tap targets. Desktop layout unchanged. */
+@media (pointer: coarse) {
+  body { min-width: 0; }  /* the 380px minimum is for the desktop toolbar popup */
+  button, select, input:not([type=checkbox]) { min-height: 44px; }
+  button.small { min-height: 44px; padding: 0 12px; }
+  .switch { width: 48px; height: 28px; }
+  .switch span::after { top: 4px; left: 4px; width: 20px; height: 20px; }
+  .switch input:checked + span::after { transform: translateX(20px); }
+  li { padding: 10px 0; }
+  .perm { padding: 6px 0; }
+  footer a { display: inline-block; padding: 14px 0; }
+  .switch input { inset: -8px; }  /* 44px+ hit area around the 28px switch */
+}

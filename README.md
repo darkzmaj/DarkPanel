@@ -17,6 +17,7 @@ Everything runs locally. DarkPanel has no account, no analytics and makes no net
 - [Using DarkPanel](#using-darkpanel)
 - [Update](#update)
 - [Uninstall](#uninstall)
+- [Mobile](#mobile)
 - [Limitations](#limitations)
 - [Development](#development)
 - [Contact](#contact)
@@ -112,6 +113,16 @@ Your list of sites and settings are kept.
 ## Uninstall
 
 `brave://extensions` → **Remove** on the DarkPanel card (and on Graphite Dark). This deletes the site list and statistics stored by the extension. Then you can delete the folder.
+
+## Mobile
+
+DarkPanel runs in Android browsers that support Chrome extensions, such as Vivaldi, Lemur and Quetta. It's tested in a phone simulation only (desktop Chromium emulating a 360 px touch screen), not yet on a real phone.
+
+- On touch screens the panel switches to 44 px tap targets and fits a 360 px screen.
+- Popup Guard blocks tabs and ad links opened by taps the same way it blocks clicks.
+- "Open in new tab" from the long-press menu uses the same code path as the right-click menu on desktop, but the long-press menu itself can't be simulated, so it's untested.
+
+Not supported: Brave, Chrome and Opera on Android or iOS (no extension support yet), and iPhone browsers in general (would need a separate Safari extension). The Graphite Dark theme and the policy files are desktop-only.
 
 ## Limitations
 
