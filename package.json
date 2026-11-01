@@ -1,7 +1,7 @@
 {
   "name": "darkpanel",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "DarkPanel: per-site popup and redirect blocking, site permissions and an extensions list for Brave and Chromium browsers.",
   "license": "MIT",

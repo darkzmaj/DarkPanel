@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DarkPanel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Per-site popup and redirect blocking, site permissions and an extensions list in one panel.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqEXZ3WDj32UGuhqj0z39rvem7JbSruoi077CaQqHYbyiUQ4+Ix1wVB97wdQJzuUiZiSRvm1/ZOeImjyubOU+9AYI7OC+lG4+cnCngiwZ30ORbGV2ECDFGVkwD+od/Ft8/p3PB8LN+Y6X2rv3YA2/XIrZL8eV/oTrBNTQX6dyDVvRu0Iz9iuPeA/m3eZwCFRAyKTL8BvqkNAjnREU0mLFcC/kjgVCw26NE8jhKSm+2EOLIxEpglm/2wbp+Czal/EwySVAbiJETj4J7fODaMDY9euUNsXPOZdI8Mk3tL+kWxi5vY09WEUpSdrJ5bnsk/T4z02DvDNdRZ2DhCuM1io32QIDAQAB",
   "minimum_chrome_version": "122",
